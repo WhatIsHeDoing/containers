@@ -20,6 +20,9 @@ pre-commit:
         shfmt:
             glob: "*.sh"
             run: shfmt --diff {staged_files}
+        workflows:
+            glob: ".github/workflows/*.{yml,yaml}"
+            run: actionlint {staged_files} && zizmor {staged_files}
         justfile:
             glob: "Justfile"
             run: just --fmt --check

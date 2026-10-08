@@ -1,0 +1,89 @@
+---
+# Two groups per ecosystem cap the pull requests at two each.
+version: 2
+
+updates:
+    - package-ecosystem: github-actions
+      directories:
+          - /
+      cooldown:
+          default-days: 14
+      groups:
+          major:
+              update-types:
+                  - major
+          minor-and-patch:
+              update-types:
+                  - minor
+                  - patch
+      schedule:
+          day: monday
+          interval: weekly
+          time: "20:00"
+          timezone: Europe/London
+
+    - package-ecosystem: docker
+      directories:
+          - /images/*
+      cooldown:
+          default-days: 14
+          semver-major-days: 30
+          semver-minor-days: 14
+          semver-patch-days: 7
+      groups:
+          major:
+              update-types:
+                  - major
+          minor-and-patch:
+              update-types:
+                  - minor
+                  - patch
+      schedule:
+          day: monday
+          interval: weekly
+          time: "20:00"
+          timezone: Europe/London
+
+    - package-ecosystem: npm
+      directories:
+          - /images/*/node
+      cooldown:
+          default-days: 14
+          semver-major-days: 30
+          semver-minor-days: 14
+          semver-patch-days: 7
+      groups:
+          major:
+              update-types:
+                  - major
+          minor-and-patch:
+              update-types:
+                  - minor
+                  - patch
+      schedule:
+          day: monday
+          interval: weekly
+          time: "20:00"
+          timezone: Europe/London
+
+    - package-ecosystem: uv
+      directories:
+          - /images/*/python
+      cooldown:
+          default-days: 14
+          semver-major-days: 30
+          semver-minor-days: 14
+          semver-patch-days: 7
+      groups:
+          major:
+              update-types:
+                  - major
+          minor-and-patch:
+              update-types:
+                  - minor
+                  - patch
+      schedule:
+          day: monday
+          interval: weekly
+          time: "20:00"
+          timezone: Europe/London

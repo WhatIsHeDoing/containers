@@ -31,13 +31,27 @@ verify: lint spellcheck build test
 
 [doc('Lint every file type and check formatting, without writing')]
 [group('check')]
-lint: dockerfiles scripts markdown yaml format-check
+lint: lint-files buildkit-check
 
-[doc('Lint Dockerfiles with hadolint and BuildKit checks')]
+[doc('Lint every file without Docker, as CI does inside the toolchain image')]
 [group('check')]
-dockerfiles:
+lint-files: hadolint scripts markdown yaml workflows format-check
+
+[doc('Lint Dockerfiles for best practice')]
+[group('check')]
+hadolint:
     hadolint images/*/Dockerfile
+
+[doc('Run BuildKit checks without building; every build also fails on them')]
+[group('check')]
+buildkit-check:
     docker buildx bake --call check {{ native_platform }}
+
+[doc('Lint GitHub Actions workflows and audit them for supply-chain risks')]
+[group('check')]
+workflows:
+    actionlint
+    zizmor .github/workflows
 
 [doc('Lint and format-check the shell scripts')]
 [group('check')]
@@ -70,7 +84,7 @@ format:
 [doc('Spell-check the tree in British English')]
 [group('check')]
 spellcheck:
-    cspell lint --no-progress --gitignore .
+    cspell lint --no-progress --gitignore --dot .
 
 [doc("Build every image for this machine's platform and load it into Docker")]
 [group('build')]

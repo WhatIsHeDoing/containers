@@ -9,6 +9,7 @@ ignorePaths:
     - tmp/
 words:
     - actionlint
+    - buildkit
     - buildx
     - commitizen
     - cosign
@@ -21,6 +22,7 @@ words:
     - lefthook
     - lockfiles
     - markdownlint
+    - pinact
     - pnpm
     - pyproject
     - SBOM
@@ -31,6 +33,7 @@ words:
     - yamllint
     - zizmor
 ignoreWords:
+    - containerimage
     - jdkato
     - koalaman
     - lycheeverse
@@ -38,6 +41,7 @@ ignoreWords:
     - noninteractive
     - opencontainers
     - rhysd
+    - sigstore
     - whatishedoing
 flagWords:
     - behavior->behaviour
