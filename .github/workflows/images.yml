@@ -118,6 +118,8 @@ jobs:
         needs: build
         if: github.event_name != 'pull_request'
         runs-on: ubuntu-24.04
+        # The environment only deploys from main, so its Docker Hub secret never reaches other branches.
+        environment: release
         permissions:
             contents: read
             id-token: write # cosign signs with the workflow's OIDC identity, not a stored key.
@@ -146,7 +148,11 @@ jobs:
               run: |
                   description=$(docker buildx bake --print 2>/dev/null |
                       jq -r '.target.toolchain.labels["org.opencontainers.image.description"]')
-                  short_sha="${GITHUB_SHA::12}"
+                  tags=(latest "$(date -u +%Y-%m-%d)" "sha-${GITHUB_SHA::12}")
+                  tag_arguments=()
+                  for tag in "${tags[@]}"; do
+                      tag_arguments+=(--tag "$IMAGE:$tag")
+                  done
                   sources=()
                   for digest_file in "$RUNNER_TEMP"/digests/*; do
                       sources+=("$IMAGE@sha256:$(basename "$digest_file")")
@@ -154,13 +160,12 @@ jobs:
                   docker buildx imagetools create \
                       --annotation "index:org.opencontainers.image.description=$description" \
                       --annotation "index:org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
-                      --tag "$IMAGE:latest" \
-                      --tag "$IMAGE:$(date -u +%Y-%m-%d)" \
-                      --tag "$IMAGE:sha-$short_sha" \
+                      "${tag_arguments[@]}" \
                       "${sources[@]}"
-                  digest=$(docker buildx imagetools inspect "$IMAGE:sha-$short_sha" --format '{{json .Manifest}}' |
+                  digest=$(docker buildx imagetools inspect "$IMAGE:${tags[2]}" --format '{{json .Manifest}}' |
                       jq -r .digest)
                   echo "digest=$digest" >> "$GITHUB_OUTPUT"
+                  echo "tags=${tags[*]}" >> "$GITHUB_OUTPUT"
 
             - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
@@ -168,3 +173,26 @@ jobs:
               env:
                   DIGEST: ${{ steps.index.outputs.digest }}
               run: cosign sign --yes "$IMAGE@$DIGEST"
+
+            # The mirror stays off until the release environment has a DOCKERHUB_USERNAME variable.
+            - name: Log in to Docker Hub
+              if: vars.DOCKERHUB_USERNAME != ''
+              uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+              with:
+                  username: ${{ vars.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+            - name: Mirror the signed index to Docker Hub
+              if: vars.DOCKERHUB_USERNAME != ''
+              env:
+                  DIGEST: ${{ steps.index.outputs.digest }}
+                  MIRROR: docker.io/whatishedoing/toolchain
+                  TAGS: ${{ steps.index.outputs.tags }}
+              run: |
+                  read -ra tags <<< "$TAGS"
+                  tag_arguments=()
+                  for tag in "${tags[@]}"; do
+                      tag_arguments+=(--tag "$MIRROR:$tag")
+                  done
+                  docker buildx imagetools create "${tag_arguments[@]}" "$IMAGE@$DIGEST"
+                  cosign sign --yes "$MIRROR@$DIGEST"
