@@ -1,0 +1,9 @@
+{
+  "name": "toolchain-node-tools",
+  "private": true,
+  "dependencies": {
+    "cspell": "10.3.6",
+    "markdownlint-cli2": "0.23.3",
+    "rust-just": "1.57.0"
+  }
+}

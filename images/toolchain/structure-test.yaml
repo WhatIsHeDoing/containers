@@ -1,0 +1,67 @@
+---
+schemaVersion: 2.0.0
+
+metadataTest:
+    user: "1000"
+    workdir: /workspace
+
+commandTests:
+    - name: actionlint runs
+      command: actionlint
+      args: [--version]
+    - name: cspell runs
+      command: cspell
+      args: [--version]
+    - name: corepack runs
+      command: corepack
+      args: [--version]
+    - name: git runs
+      command: git
+      args: [--version]
+    - name: gitleaks runs
+      command: gitleaks
+      args: [version]
+    - name: hadolint runs
+      command: hadolint
+      args: [--version]
+    - name: just runs
+      command: just
+      args: [--version]
+    - name: lychee runs
+      command: lychee
+      args: [--version]
+    - name: markdownlint-cli2 catches a second top-level heading
+      command: sh
+      args: [-c, "printf '# One\\n\\n# Two\\n' > /tmp/probe.md && markdownlint-cli2 /tmp/probe.md"]
+      exitCode: 1
+      expectedError: ["MD025"]
+    - name: node runs
+      command: node
+      args: [--version]
+    - name: osv-scanner runs
+      command: osv-scanner
+      args: [--version]
+    - name: shellcheck runs
+      command: shellcheck
+      args: [--version]
+    - name: shfmt runs
+      command: shfmt
+      args: [--version]
+    - name: uv runs
+      command: uv
+      args: [--version]
+    - name: vale runs
+      command: vale
+      args: [--version]
+    - name: yamllint runs
+      command: yamllint
+      args: [--version]
+    - name: zizmor runs
+      command: zizmor
+      args: [--version]
+    # The runner expands `$` in arguments before the shell sees them, so this probe avoids one.
+    - name: shellcheck catches legacy backticks
+      command: sh
+      args: [-c, "printf '#!/bin/sh\\necho `date`\\n' | shellcheck -"]
+      exitCode: 1
+      expectedOutput: ["SC2006"]

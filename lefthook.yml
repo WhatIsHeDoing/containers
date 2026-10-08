@@ -14,6 +14,12 @@ pre-commit:
         hadolint:
             glob: "**/Dockerfile"
             run: hadolint {staged_files}
+        shellcheck:
+            glob: "*.sh"
+            run: shellcheck {staged_files}
+        shfmt:
+            glob: "*.sh"
+            run: shfmt --diff {staged_files}
         justfile:
             glob: "Justfile"
             run: just --fmt --check

@@ -19,12 +19,26 @@ words:
     - hadolint
     - justfile
     - lefthook
+    - lockfiles
     - markdownlint
     - pnpm
+    - pyproject
     - SBOM
+    - shellcheck
+    - shfmt
     - Telerik
+    - venv
     - yamllint
     - zizmor
+ignoreWords:
+    - jdkato
+    - koalaman
+    - lycheeverse
+    - mvdan
+    - noninteractive
+    - opencontainers
+    - rhysd
+    - whatishedoing
 flagWords:
     - behavior->behaviour
     - behaviors->behaviours

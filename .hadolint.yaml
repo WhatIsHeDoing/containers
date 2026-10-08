@@ -1,0 +1,6 @@
+---
+failure-threshold: info
+ignored:
+    # Debian's archive keeps only the current version of each package, so a pinned apt version
+    # fails the build at the next point release. The weekly rebuild takes fixes instead.
+    - DL3008
