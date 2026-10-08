@@ -1,0 +1,31 @@
+---
+pre-commit:
+    parallel: true
+    commands:
+        cspell:
+            glob: "*"
+            run: cspell lint --no-progress --no-must-find-files {staged_files}
+        markdownlint:
+            glob: "*.md"
+            run: markdownlint-cli2 {staged_files}
+        yamllint:
+            glob: "*.{yml,yaml}"
+            run: yamllint --strict {staged_files}
+        hadolint:
+            glob: "**/Dockerfile"
+            run: hadolint {staged_files}
+        justfile:
+            glob: "Justfile"
+            run: just --fmt --check
+        gitleaks:
+            run: gitleaks git --staged --no-banner --redact
+        whitespace:
+            run: git diff --check --cached
+commit-msg:
+    commands:
+        commitizen:
+            run: cz check --commit-msg-file {1}
+pre-push:
+    commands:
+        lint:
+            run: just lint spellcheck

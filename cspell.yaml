@@ -1,0 +1,48 @@
+---
+$schema: https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json
+version: "0.2"
+# en keeps American spellings valid in code; flagWords reject them in prose.
+language: en,en-GB
+ignorePaths:
+    - .git/
+    - cspell.yaml
+    - tmp/
+words:
+    - actionlint
+    - buildx
+    - commitizen
+    - cosign
+    - cspell
+    - devcontainer
+    - Dockerfiles
+    - gitleaks
+    - hadolint
+    - justfile
+    - lefthook
+    - markdownlint
+    - pnpm
+    - SBOM
+    - Telerik
+    - yamllint
+    - zizmor
+flagWords:
+    - behavior->behaviour
+    - behaviors->behaviours
+    - catalog->catalogue
+    - center->centre
+    - customize->customise
+    - customized->customised
+    - defense->defence
+    - favorite->favourite
+    - finalize->finalise
+    - fulfill->fulfil
+    - initialize->initialise
+    - initialized->initialised
+    - normalize->normalise
+    - organization->organisation
+    - organize->organise
+    - organized->organised
+    - prioritize->prioritise
+    - recognize->recognise
+    - recognized->recognised
+    - synchronize->synchronise

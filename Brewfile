@@ -1,0 +1,11 @@
+# Gate tools that `just verify` and the git hooks call.
+brew "actionlint"
+brew "container-structure-test"
+brew "cspell"
+brew "gitleaks"
+brew "hadolint"
+brew "lefthook"
+brew "markdownlint-cli2"
+brew "osv-scanner"
+brew "yamllint"
+brew "zizmor"
