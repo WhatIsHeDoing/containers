@@ -3,31 +3,32 @@
 The container images behind WhatIsHeDoing projects, replacing eight unmaintained Docker Hub images built
 between 2019 and 2021.
 
-**Now:** Docker Hub carries current images.
+**Now:** A repository verifies in the image.
 **Last updated:** 2026-10-09.
 
 > Now holds unfinished work only, capped at three items. A finished item collapses to one Shipped line.
 
 ## Now
 
-### Docker Hub carries current images
-
-The site links to Docker Hub, so the toolchain mirrors there, signed, once the `release` environment
-has a `DOCKERHUB_USERNAME` variable and a push-scoped `DOCKERHUB_TOKEN` secret.
-
-## Next
-
-| Item                                     | Outcome                                                     | Waiting on |
-| ---------------------------------------- | ----------------------------------------------------------- | ---------- |
-| [A repository verifies in the image][vf] | One repository's CI runs `just verify` inside the toolchain | Nothing    |
-
-[vf]: #a-repository-verifies-in-the-image
-
 ### A repository verifies in the image
 
 Point one repository's CI job at the toolchain image through `container:`, so its local and CI gates
 run in the same environment. The image runs as UID 1000, and GitHub mounts the workspace for root, so
 expect to set the job's user.
+
+## Next
+
+| Item                                     | Outcome                                             | Waiting on |
+| ---------------------------------------- | --------------------------------------------------- | ---------- |
+| [A push-scoped Docker Hub token][hubkey] | The mirror outlives the token it logs in with today | Nothing    |
+
+[hubkey]: #a-push-scoped-docker-hub-token
+
+### A push-scoped Docker Hub token
+
+The `release` environment's `DOCKERHUB_TOKEN` is a broader token that lapses around January 2027.
+After that, the login step fails the publish job, though GHCR has its signed index by then. Replace it
+with a token that can only push, before it lapses.
 
 ## Later
 
@@ -44,6 +45,7 @@ expect to set the job's user.
 
 ## Shipped
 
+- Toolchain mirrored to Docker Hub, signed, from every `main` publish (acc59a4).
 - Eight old Docker Hub images deprecated, each naming its replacement.
 - CI publishes signed, attested, multi-arch images to GHCR (0422924).
 - Five legacy source repositories archived, each naming its replacement.
