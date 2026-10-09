@@ -31,10 +31,10 @@ jobs:
             matrix:
                 include:
                     - arch: amd64
-                      runner: ubuntu-24.04
+                      runner: ubuntu-26.04
                       structure-test-sha256: fa35e89512a8978585f76cf41397956d2e3a30c62c2ad3fb857b1597074d14ca
                     - arch: arm64
-                      runner: ubuntu-24.04-arm
+                      runner: ubuntu-26.04-arm
                       structure-test-sha256: 801826ed107222120eb6df8c143b7de752cfebbe3aebfeea576e7098486917c2
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -118,7 +118,7 @@ jobs:
         name: Publish the multi-arch image
         needs: build
         if: github.event_name != 'pull_request'
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         # The environment only deploys from main, so its Docker Hub secret never reaches other branches.
         environment: release
         permissions:
