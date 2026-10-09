@@ -19,6 +19,7 @@ words:
     - gitleaks
     - hadolint
     - justfile
+    - katex
     - lefthook
     - lockfiles
     - markdownlint
@@ -28,6 +29,7 @@ words:
     - SBOM
     - shellcheck
     - shfmt
+    - smol
     - Telerik
     - venv
     - yamllint

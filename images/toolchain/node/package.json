@@ -1,9 +1,14 @@
 {
   "name": "toolchain-node-tools",
   "private": true,
+  "//": "markdownlint-cli2 0.23.3 pins smol-toml 1.8.0, and its katex range stops at 0.16, so both sit below their security fixes. Drop each override once markdownlint-cli2 ships a fixed version itself.",
   "dependencies": {
     "cspell": "10.3.6",
     "markdownlint-cli2": "0.23.3",
     "rust-just": "1.57.0"
+  },
+  "overrides": {
+    "katex": "0.18.7",
+    "smol-toml": "1.9.0"
   }
 }
