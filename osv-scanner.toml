@@ -1,0 +1,11 @@
+# Vulnerabilities the audit accepts. Each names why the risk is tolerable and lapses on a date,
+# after which `just audit` reports it again and someone has to look afresh.
+
+# braces 3.0.3 is the latest release, and the advisory covers every version, so no override can fix
+# it. markdownlint-cli2 is the only tool that pulls it in, through micromatch, and expands only the
+# globs from its own command line and config. A crafted pattern therefore needs write access to the
+# repository being linted, and stops nothing but that lint run.
+[[IgnoredVulns]]
+id = "GHSA-vfj7-8cjw-p6xm"
+ignoreUntil = 2027-01-09
+reason = "No fixed braces release; markdownlint-cli2 expands only the linted repository's own globs"

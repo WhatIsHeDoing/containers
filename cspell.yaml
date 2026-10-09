@@ -36,6 +36,7 @@ words:
     - zizmor
 ignoreWords:
     - containerimage
+    - GHSA
     - jdkato
     - koalaman
     - lycheeverse
@@ -44,6 +45,7 @@ ignoreWords:
     - opencontainers
     - rhysd
     - sigstore
+    - Vulns
     - whatishedoing
 flagWords:
     - behavior->behaviour
