@@ -4,7 +4,7 @@ The container images behind WhatIsHeDoing projects, replacing eight unmaintained
 between 2019 and 2021.
 
 **Now:** Docker Hub carries current images.
-**Last updated:** 2026-10-08.
+**Last updated:** 2026-10-09.
 
 > Now holds unfinished work only, capped at three items. A finished item collapses to one Shipped line.
 
@@ -13,10 +13,7 @@ between 2019 and 2021.
 ### Docker Hub carries current images
 
 The site links to Docker Hub, so the toolchain mirrors there, signed, once the `release` environment
-has a `DOCKERHUB_USERNAME` variable and a push-scoped `DOCKERHUB_TOKEN` secret. The eight old images get a
-deprecation notice naming each replacement; updating a description needs a read/write/delete token, so
-that one is short-lived. Delete the old images only after a quiet period, since nothing reports who
-still pulls them.
+has a `DOCKERHUB_USERNAME` variable and a push-scoped `DOCKERHUB_TOKEN` secret.
 
 ## Next
 
@@ -42,9 +39,11 @@ expect to set the job's user.
 | `just upgrade` for base images           | Dependabot covers it until a local, cooldown-aware bump pays          |
 | Managed by `agent-interface-kit`         | `aik` has no Docker ecosystem yet                                     |
 | `LocalDataCentre` home lab               | A separate repository with its own Compose stack                      |
+| Delete the eight old Docker Hub images   | Nothing reports who still pulls them, so wait out a quiet period      |
 
 ## Shipped
 
+- Eight old Docker Hub images deprecated, each naming its replacement.
 - CI publishes signed, attested, multi-arch images to GHCR (0422924).
 - Five legacy source repositories archived, each naming its replacement.
 - Toolchain image, structure-tested on both architectures (403888b).
