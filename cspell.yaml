@@ -30,6 +30,7 @@ words:
     - shellcheck
     - shfmt
     - smol
+    - taplo
     - Telerik
     - venv
     - yamllint
@@ -45,6 +46,7 @@ ignoreWords:
     - opencontainers
     - rhysd
     - sigstore
+    - tamasfe
     - Vulns
     - whatishedoing
 flagWords:
