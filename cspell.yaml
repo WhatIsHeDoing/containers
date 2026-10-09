@@ -32,15 +32,22 @@ words:
     - smol
     - taplo
     - Telerik
+    - tmpfs
     - venv
+    - Wolfi
     - yamllint
     - zizmor
+    - zstd
 ignoreWords:
+    - adduser
+    - chainguard
     - containerimage
+    - COPYFILE
     - GHSA
     - jdkato
     - koalaman
     - lycheeverse
+    - mediatypes
     - mvdan
     - noninteractive
     - opencontainers
@@ -49,6 +56,7 @@ ignoreWords:
     - tamasfe
     - Vulns
     - whatishedoing
+    - xattrs
 flagWords:
     - behavior->behaviour
     - behaviors->behaviours

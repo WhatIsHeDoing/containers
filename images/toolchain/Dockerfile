@@ -11,7 +11,20 @@ FROM ghcr.io/google/osv-scanner:v2.6.0@sha256:afd838850ac1a0fcc15ff4a041dc9ba111
 FROM lycheeverse/lychee:0.24.2@sha256:e2d19e57cf6ab037026f20b8e449a1f30d9d7f81eef4194763aab2eab20bd28d AS lychee
 FROM tamasfe/taplo:0.10.0@sha256:e0e247250609d2c0f3a77bc8003dc21eaa16ffd1b07ef4bad16c35f6845eec2b AS taplo
 
-FROM node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66 AS base
+# GitHub's runner runs JavaScript actions on its own glibc build of Node, mounted into a job's
+# container. scripts/consumer.sh mounts this official build the same way; the image never copies it.
+FROM node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66 AS actions-node
+
+# Wolfi links glibc, so GitHub's runner can still host JavaScript actions in the job container on
+# arm64, which Alpine's musl would break. Its packages split finer than Debian's: git arrives without
+# perl, and Node links the system's ICU and OpenSSL rather than embedding its own.
+FROM cgr.dev/chainguard/wolfi-base:latest@sha256:c08875f557c44f2e376d40ab68a6674234a8eeef06a0d10fbe9d2db40bcdb531 AS base
+
+# Each package floats within the line its name fixes, and the upgrade refreshes the base's own, so the
+# weekly rebuild takes fixes; .hadolint.yaml explains why nothing pins them further.
+RUN apk upgrade --no-cache \
+    && apk add --no-cache bash corepack git nodejs-24 npm python-3.14 \
+    && adduser -D -u 1000 -h /home/toolchain toolchain
 
 # Vale's own image links against musl, so take the release build. Dependabot cannot bump these
 # downloads: change the version and both checksums together.
@@ -26,44 +39,38 @@ ADD --checksum=sha256:104cbd349279e50c4cb40adb70adf345d93cc4a3a0191f9e68bdccb970
 # hadolint reads the per-architecture stage name as an untagged image.
 # hadolint ignore=DL3006
 FROM vale-${TARGETARCH} AS vale
-RUN tar --extract --gzip --file /tmp/vale.tar.gz --directory /usr/local/bin vale
+RUN tar -xzf /tmp/vale.tar.gz -C /tmp vale
 
 FROM base AS node-tools
 WORKDIR /opt/toolchain/node
 COPY node/package.json node/package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
 
-# The venv links to its interpreter by absolute path, so both keep these paths in the final stage.
+# The venv links to base's interpreter by absolute path, which the final stage shares. uv only builds
+# it, so the image never carries uv itself.
 FROM base AS python-tools
 COPY --from=uv /uv /usr/local/bin/
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/opt/toolchain/python/venv \
-    UV_PYTHON_INSTALL_DIR=/opt/toolchain/python/interpreters \
-    UV_PYTHON_PREFERENCE=only-managed
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PYTHON_PREFERENCE=only-system
 WORKDIR /opt/toolchain/python
 COPY python/pyproject.toml python/uv.lock python/.python-version ./
 RUN uv sync --frozen --no-dev
 
 FROM base
 
-# apt resolves against Debian's live archive, which .hadolint.yaml explains.
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update \
-    && apt-get install --yes --no-install-recommends ca-certificates git \
-    && rm -rf /var/lib/apt/lists/*
-
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable
 
-COPY --from=uv /uv /uvx /usr/local/bin/
 COPY --from=shellcheck /bin/shellcheck /usr/local/bin/
 COPY --from=shfmt /bin/shfmt /usr/local/bin/
 COPY --from=hadolint /bin/hadolint /usr/local/bin/
 COPY --from=actionlint /usr/local/bin/actionlint /usr/local/bin/
 COPY --from=gitleaks /usr/bin/gitleaks /usr/local/bin/
 COPY --from=osv-scanner /osv-scanner /usr/local/bin/
-COPY --from=vale /usr/local/bin/vale /usr/local/bin/
+COPY --from=vale /tmp/vale /usr/local/bin/
 COPY --from=lychee /usr/local/bin/lychee /usr/local/bin/
 COPY --from=taplo /taplo /usr/local/bin/
 COPY --from=node-tools /opt/toolchain/node /opt/toolchain/node
@@ -71,6 +78,6 @@ COPY --from=python-tools /opt/toolchain/python /opt/toolchain/python
 
 ENV PATH=/opt/toolchain/node/node_modules/.bin:/opt/toolchain/python/venv/bin:$PATH
 
-# The base image's `node` user, by number so a runtime can verify it is not root.
+# The `toolchain` user, by number so a runtime can verify it is not root.
 USER 1000
 WORKDIR /workspace
