@@ -34,6 +34,7 @@ expect to set the job's user.
 | Item                                     | Why not yet                                                           |
 | ---------------------------------------- | --------------------------------------------------------------------- |
 | Gate on fixable critical vulnerabilities | Nearly all 220 findings await Debian or upstream fixes; audit reports |
+| Drop the `braces` waiver and overrides   | Each waits on a fixed upstream release; the waiver lapses 2027-01-09  |
 | A smaller toolchain                      | 817 MB works for CI; measure the layers with `dive` before cutting    |
 | Dev Container Feature                    | Waits on one repository using the image in CI                         |
 | `just upgrade` for base images           | Dependabot covers it until a local, cooldown-aware bump pays          |
