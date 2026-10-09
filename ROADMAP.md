@@ -33,15 +33,16 @@ with a token that can only push, before it lapses.
 
 ## Later
 
-| Item                                     | Why not yet                                                               |
-| ---------------------------------------- | ------------------------------------------------------------------------- |
-| Gate on fixable critical vulnerabilities | About 200 of 223 findings sit in upstream tools' Go builds; audit reports |
-| Drop the `braces` waiver and overrides   | Each waits on a fixed upstream release; the waiver lapses 2027-01-09      |
-| Dev Container Feature                    | Waits on one repository using the image in CI                             |
-| `just upgrade` for base images           | Dependabot covers it until a local, cooldown-aware bump pays              |
-| Managed by `agent-interface-kit`         | `aik` has no Docker ecosystem yet                                         |
-| `LocalDataCentre` home lab               | A separate repository with its own Compose stack                          |
-| Delete the eight old Docker Hub images   | Nothing reports who still pulls them, so wait out a quiet period          |
+| Item                                     | Why not yet                                                                   |
+| ---------------------------------------- | ----------------------------------------------------------------------------- |
+| Gate on fixable critical vulnerabilities | About 200 of 223 findings sit in upstream tools' Go builds; audit reports     |
+| Drop the `braces` waiver and overrides   | Each waits on a fixed upstream release; the waiver lapses 2027-01-09          |
+| Drop the actionlint runner labels        | Waits on an actionlint release that knows Ubuntu 26.04 (rhysd/actionlint#682) |
+| Dev Container Feature                    | Waits on one repository using the image in CI                                 |
+| `just upgrade` for base images           | Dependabot covers it until a local, cooldown-aware bump pays                  |
+| Managed by `agent-interface-kit`         | `aik` has no Docker ecosystem yet                                             |
+| `LocalDataCentre` home lab               | A separate repository with its own Compose stack                              |
+| Delete the eight old Docker Hub images   | Nothing reports who still pulls them, so wait out a quiet period              |
 
 ## Shipped
 
