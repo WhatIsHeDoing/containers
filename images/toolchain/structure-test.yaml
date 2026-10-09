@@ -27,6 +27,9 @@ commandTests:
     - name: just runs
       command: just
       args: [--version]
+    - name: lefthook runs
+      command: lefthook
+      args: [version]
     - name: lychee runs
       command: lychee
       args: [--version]
@@ -46,6 +49,9 @@ commandTests:
       args: [--version]
     - name: shfmt runs
       command: shfmt
+      args: [--version]
+    - name: taplo runs
+      command: taplo
       args: [--version]
     - name: uv runs
       command: uv

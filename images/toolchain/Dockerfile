@@ -9,6 +9,7 @@ FROM rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fe
 FROM ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f AS gitleaks
 FROM ghcr.io/google/osv-scanner:v2.6.0@sha256:afd838850ac1a0fcc15ff4a041dc9ba11123c3f0d2666217a5f0fcf9222b55fa AS osv-scanner
 FROM lycheeverse/lychee:0.24.2@sha256:e2d19e57cf6ab037026f20b8e449a1f30d9d7f81eef4194763aab2eab20bd28d AS lychee
+FROM tamasfe/taplo:0.10.0@sha256:e0e247250609d2c0f3a77bc8003dc21eaa16ffd1b07ef4bad16c35f6845eec2b AS taplo
 
 FROM node:24.21.0-trixie-slim@sha256:173f125896c3b47ddf056734c7ea789d04595a6a08769a8f78e0df642781fb66 AS base
 
@@ -64,6 +65,7 @@ COPY --from=gitleaks /usr/bin/gitleaks /usr/local/bin/
 COPY --from=osv-scanner /osv-scanner /usr/local/bin/
 COPY --from=vale /usr/local/bin/vale /usr/local/bin/
 COPY --from=lychee /usr/local/bin/lychee /usr/local/bin/
+COPY --from=taplo /taplo /usr/local/bin/
 COPY --from=node-tools /opt/toolchain/node /opt/toolchain/node
 COPY --from=python-tools /opt/toolchain/python /opt/toolchain/python
 
