@@ -71,7 +71,7 @@ jobs:
                   chmod +x "$binary"
                   echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
 
-            - name: Structure tests
+            - name: Structure and consumer tests
               run: bash scripts/test.sh
 
             - name: Log in to GHCR
@@ -82,7 +82,8 @@ jobs:
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
-            # No cache-from: the tested build's local layers are the ones to push.
+            # No cache-from: the tested build's local layers are the ones to push. Every consumer job pulls
+            # these layers, so they take zstd's best ratio rather than gzip's; Docker has pulled zstd since 23.
             - name: Push the tested image by digest
               id: push
               if: github.event_name != 'pull_request'
@@ -94,7 +95,7 @@ jobs:
                   set: |
                       *.platform=linux/${{ matrix.arch }}
                       *.tags=${{ env.IMAGE }}
-                      *.output=type=image,push-by-digest=true,name-canonical=true,push=true
+                      *.output=type=image,push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true,compression=zstd,compression-level=19,force-compression=true
 
             - name: Record the digest
               if: github.event_name != 'pull_request'

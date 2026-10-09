@@ -1,0 +1,3 @@
+# Run every hook against every file, as the Setup repository's CI does
+verify:
+    lefthook run pre-commit --all-files

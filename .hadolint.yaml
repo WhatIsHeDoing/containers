@@ -1,6 +1,7 @@
 ---
 failure-threshold: info
 ignored:
-    # Debian's archive keeps only the current version of each package, so a pinned apt version
-    # fails the build at the next point release. The weekly rebuild takes fixes instead.
-    - DL3008
+    # Wolfi keeps old package versions, so an apk pin would hold, but nothing bumps one the way
+    # Dependabot bumps every other pin, and a pin left alone stops taking security fixes. Each package
+    # name fixes its line instead (nodejs-24, python-3.14), and the weekly rebuild takes fixes within it.
+    - DL3018

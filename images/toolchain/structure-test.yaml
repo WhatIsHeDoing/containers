@@ -5,69 +5,115 @@ metadataTest:
     user: "1000"
     workdir: /workspace
 
+# A tool that checks files proves itself on a probe it must reject, so a missing library or rule set
+# fails here rather than in a consumer's CI. The rest only have to start.
+# The runner expands `$` in arguments before the shell sees them, so no probe uses one.
 commandTests:
-    - name: actionlint runs
-      command: actionlint
-      args: [--version]
-    - name: cspell runs
-      command: cspell
-      args: [--version]
     - name: corepack runs
       command: corepack
       args: [--version]
     - name: git runs
       command: git
       args: [--version]
-    - name: gitleaks runs
-      command: gitleaks
-      args: [version]
-    - name: hadolint runs
-      command: hadolint
+    - name: node runs
+      command: node
       args: [--version]
-    - name: just runs
-      command: just
+    - name: npm runs
+      command: npm
       args: [--version]
-    - name: lefthook runs
-      command: lefthook
-      args: [version]
-    - name: lychee runs
-      command: lychee
+    - name: osv-scanner runs
+      command: osv-scanner
       args: [--version]
+    - name: actionlint catches a job with no steps
+      command: sh
+      args:
+          - -c
+          - "printf 'on: push\\njobs:\\n  a:\\n    runs-on: ubuntu-latest\\n' > /tmp/probe.yml && actionlint /tmp/probe.yml"
+      exitCode: 1
+      expectedOutput: ["syntax-check"]
+    # cspell:ignore Thiss tset
+    - name: cspell catches a misspelling
+      command: sh
+      args: [-c, "printf 'Thiss is a tset.\\n' > /tmp/probe.txt && cd /tmp && cspell lint --no-progress probe.txt"]
+      exitCode: 1
+      expectedOutput: ["Unknown word \\(tset\\)"]
+    # Split so the probe itself never matches a secret pattern in this repository.
+    - name: gitleaks catches a GitHub token
+      command: sh
+      args:
+          - -c
+          - "mkdir /tmp/leak && printf 'token = \"ghp_%s\"\\n' 8fK2pQ9xLm4vR7tZ1wN6yB3cH5jD0sA8eU2g > /tmp/leak/probe.txt
+              && gitleaks dir --no-banner /tmp/leak"
+      exitCode: 1
+      expectedError: ["leaks found: 1"]
+    - name: hadolint catches an untagged image
+      command: sh
+      args: [-c, "printf 'FROM debian\\n' | hadolint -"]
+      exitCode: 1
+      expectedOutput: ["DL3006"]
+    - name: just runs a recipe
+      command: sh
+      args: [-c, "printf 'probe:\\n    @echo just ran a recipe\\n' > /tmp/Justfile && just --justfile /tmp/Justfile probe"]
+      expectedOutput: ["just ran a recipe"]
+    - name: lefthook runs a hook
+      command: sh
+      args:
+          - -c
+          - "git init --quiet /tmp/repository && cd /tmp/repository
+              && printf 'pre-commit:\\n  commands:\\n    probe:\\n      run: echo lefthook ran a hook\\n' > lefthook.yml
+              && lefthook run pre-commit --force"
+      expectedOutput: ["lefthook ran a hook"]
+    - name: lychee catches a missing local file
+      command: sh
+      args: [-c, "printf '[gone](missing.md)\\n' > /tmp/probe.md && lychee --offline --no-progress /tmp/probe.md"]
+      exitCode: 2
+      expectedOutput: ["File not found"]
     - name: markdownlint-cli2 catches a second top-level heading
       command: sh
       args: [-c, "printf '# One\\n\\n# Two\\n' > /tmp/probe.md && markdownlint-cli2 /tmp/probe.md"]
       exitCode: 1
       expectedError: ["MD025"]
-    - name: node runs
-      command: node
-      args: [--version]
-    - name: osv-scanner runs
-      command: osv-scanner
-      args: [--version]
-    - name: shellcheck runs
-      command: shellcheck
-      args: [--version]
-    - name: shfmt runs
-      command: shfmt
-      args: [--version]
-    - name: taplo runs
-      command: taplo
-      args: [--version]
-    - name: uv runs
-      command: uv
-      args: [--version]
-    - name: vale runs
-      command: vale
-      args: [--version]
-    - name: yamllint runs
-      command: yamllint
-      args: [--version]
-    - name: zizmor runs
-      command: zizmor
-      args: [--version]
-    # The runner expands `$` in arguments before the shell sees them, so this probe avoids one.
+    - name: python3 runs a script
+      command: python3
+      args: [-c, "import sys; print(sys.version_info >= (3, 14))"]
+      expectedOutput: ["True"]
     - name: shellcheck catches legacy backticks
       command: sh
       args: [-c, "printf '#!/bin/sh\\necho `date`\\n' | shellcheck -"]
       exitCode: 1
       expectedOutput: ["SC2006"]
+    - name: shfmt catches a missing space
+      command: sh
+      args: [-c, "printf 'if true;then\\n\\techo\\nfi\\n' | shfmt --diff"]
+      exitCode: 1
+      expectedOutput: ["\\+if true; then"]
+    - name: taplo catches invalid TOML
+      command: sh
+      args: [-c, "printf 'key = \\n' > /tmp/probe.toml && taplo lint --no-schema /tmp/probe.toml"]
+      exitCode: 1
+      expectedError: ["invalid TOML"]
+    - name: vale catches a repeated word
+      command: sh
+      args:
+          - -c
+          - "mkdir /tmp/prose && cd /tmp/prose && printf '[*]\\nBasedOnStyles = Vale\\n' > .vale.ini
+              && printf 'This is is a probe.\\n' > probe.md && vale probe.md"
+      exitCode: 1
+      expectedOutput: ["Vale.Repetition"]
+    - name: yamllint catches a duplicate key
+      command: sh
+      args: [-c, "printf 'key: 1\\nkey: 2\\n' | yamllint -"]
+      exitCode: 1
+      expectedOutput: ["key-duplicates"]
+    # zizmor exits 14 when its worst finding is high severity.
+    # cspell:ignore artipacked
+    - name: zizmor catches persisted checkout credentials
+      command: sh
+      args:
+          - -c
+          - "mkdir -p /tmp/actions/.github/workflows && cd /tmp/actions
+              && printf 'on: push\\npermissions: {}\\njobs:\\n  a:\\n    runs-on: ubuntu-latest\\n' > .github/workflows/probe.yml
+              && printf '    steps:\\n      - uses: actions/checkout@v5\\n' >> .github/workflows/probe.yml
+              && zizmor --offline .github/workflows/probe.yml"
+      exitCode: 14
+      expectedOutput: ["artipacked"]

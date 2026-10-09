@@ -1,0 +1,13 @@
+---
+name: Verify
+
+on:
+    push:
+
+permissions: {}
+
+jobs:
+    verify:
+        runs-on: ubuntu-24.04
+        steps:
+            - run: just verify

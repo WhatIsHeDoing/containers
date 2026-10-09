@@ -1,0 +1,45 @@
+---
+# The Setup repository's hooks, the toolchain image's first consumer, plus every other hook tool the
+# image carries. Each command runs offline, as the image tests run this repository with no network.
+pre-commit:
+    parallel: true
+    commands:
+        cspell:
+            glob: "*"
+            run: cspell lint --no-progress {staged_files}
+        yamllint:
+            glob: "*.{yml,yaml}"
+            run: yamllint --strict {staged_files}
+        markdownlint:
+            glob: "*.md"
+            run: markdownlint-cli2 {staged_files}
+        vale:
+            glob: "*.md"
+            run: vale {staged_files}
+        lychee:
+            glob: "*.md"
+            run: lychee --offline --no-progress {staged_files}
+        gitleaks:
+            run: gitleaks git --no-banner --redact
+        shellcheck:
+            glob: "*.sh"
+            run: shellcheck {staged_files}
+        shfmt:
+            glob: "*.sh"
+            run: shfmt --diff {staged_files}
+        taplo:
+            glob: "*.toml"
+            run: taplo lint --no-schema {staged_files}
+        hadolint:
+            glob: "Dockerfile"
+            run: hadolint {staged_files}
+        workflows:
+            glob: ".github/workflows/*.{yml,yaml}"
+            run: actionlint {staged_files} && zizmor --offline {staged_files}
+        justfile:
+            glob: "Justfile"
+            run: just --fmt --check
+        python:
+            run: python3 scripts/greet.py
+        whitespace:
+            run: git diff --check --cached
